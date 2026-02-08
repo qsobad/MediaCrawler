@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  worker:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+      - CRAWLER_PATH=/app/MediaCrawler
+    volumes:
+      - ./data:/app/MediaCrawler/data
+    restart: unless-stopped
+    
+  # Optional: Redis for production task queue
+  # redis:
+  #   image: redis:alpine
+  #   ports:
+  #     - "6379:6379"

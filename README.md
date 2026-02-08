@@ -319,3 +319,30 @@ Thordata：可靠且经济高效的代理服务提供商。为企业和开发者
 ## 6. 最终解释权
 关于本项目的最终解释权归开发者所有。开发者保留随时更改或更新本免责声明的权利，恕不另行通知。
 </div>
+
+---
+
+## 🚀 API Worker Mode
+
+本 fork 添加了 API 模式，支持通过 HTTP 接口提交爬取任务。
+
+### Docker 部署
+
+```bash
+docker build -f Dockerfile.worker -t mediacrawler-worker .
+docker run -d -p 8000:8000 mediacrawler-worker
+```
+
+### API 使用
+
+```bash
+# 提交爬取任务
+curl -X POST http://localhost:8000/crawl \
+  -H "Content-Type: application/json" \
+  -d '{"platform":"dy", "urls":["https://v.douyin.com/xxx/"], "cookies":"your_cookie"}'
+
+# 查询任务状态
+curl http://localhost:8000/task/{task_id}
+```
+
+详见 [worker.py](worker.py)
