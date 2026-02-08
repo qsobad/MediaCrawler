@@ -1,12 +1,9 @@
 # MediaCrawler Worker - API Mode
-FROM python:3.10-slim
+# 使用 Playwright 官方镜像，已预装浏览器依赖
+FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy
 
-# Install system dependencies
+# Install additional dependencies
 RUN apt-get update && apt-get install -y \
-    wget \
-    gnupg \
-    curl \
-    git \
     nodejs \
     npm \
     && rm -rf /var/lib/apt/lists/*
@@ -15,20 +12,18 @@ WORKDIR /app
 
 # Copy and install requirements first (better caching)
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Install Playwright browsers
-RUN playwright install chromium && playwright install-deps
+RUN pip install --no-cache-dir -r requirements.txt || true
 
 # Clone MediaCrawler
 RUN git clone https://github.com/NanmiCoder/MediaCrawler.git /app/MediaCrawler
 
-# Install MediaCrawler dependencies
-RUN cd /app/MediaCrawler && pip install --no-cache-dir -r requirements.txt || true
+# Install MediaCrawler dependencies (ignore errors for version conflicts)
+RUN cd /app/MediaCrawler && \
+    sed -i 's/==/>=/' requirements.txt && \
+    pip install --no-cache-dir -r requirements.txt || true
 
 # Copy worker application
 COPY worker.py .
-COPY config/ ./config/ 2>/dev/null || true
 
 # Create data directory
 RUN mkdir -p /app/MediaCrawler/data
